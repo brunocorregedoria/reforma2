@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: reforma_postgres
+    environment:
+      POSTGRES_DB: reforma_residencial
+      POSTGRES_USER: reforma_user
+      POSTGRES_PASSWORD: reforma_pass123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    networks:
+      - reforma_network
+
+  backend:
+    build: ./backend
+    container_name: reforma_backend
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: reforma_residencial
+      DB_USER: reforma_user
+      DB_PASSWORD: reforma_pass123
+      JWT_SECRET: reforma_jwt_secret_key_2025
+      PORT: 3001
+    depends_on:
+      - postgres
+    volumes:
+      - ./uploads:/app/uploads
+      - ./backups:/app/backups
+    networks:
+      - reforma_network
+
+  frontend:
+    build: ./frontend
+    container_name: reforma_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:3001
+    depends_on:
+      - backend
+    networks:
+      - reforma_network
+
+volumes:
+  postgres_data:
+
+networks:
+  reforma_network:
+    driver: bridge
+
