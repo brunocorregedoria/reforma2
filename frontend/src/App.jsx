@@ -4,7 +4,9 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout/Layout';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import PerformanceMonitor from './components/dev/PerformanceMonitor';
 import './App.css';
 
 function App() {
@@ -13,6 +15,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route 
             path="/*" 
             element={
@@ -27,6 +30,7 @@ function App() {
             } 
           />
         </Routes>
+        <PerformanceMonitor />
       </Router>
     </AuthProvider>
   );

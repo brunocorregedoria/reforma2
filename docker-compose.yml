@@ -1,54 +1,60 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15
     container_name: reforma_postgres
     environment:
-      POSTGRES_DB: reforma_residencial
-      POSTGRES_USER: reforma_user
-      POSTGRES_PASSWORD: reforma_pass123
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backups:/backups
     networks:
       - reforma_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build: ./backend
     container_name: reforma_backend
-    ports:
-      - "3001:3001"
     environment:
-      NODE_ENV: development
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: reforma_residencial
-      DB_USER: reforma_user
-      DB_PASSWORD: reforma_pass123
-      JWT_SECRET: reforma_jwt_secret_key_2025
-      PORT: 3001
+      NODE_ENV: ${NODE_ENV}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: ${PORT}
+      FRONTEND_URL: ${FRONTEND_URL}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
     volumes:
       - ./uploads:/app/uploads
       - ./backups:/app/backups
     networks:
       - reforma_network
+      - proxy-network
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: https://bsj.c2d.shop
     container_name: reforma_frontend
-    ports:
-      - "3000:3000"
-    environment:
-      REACT_APP_API_URL: http://localhost:3001
+    restart: unless-stopped
     depends_on:
       - backend
     networks:
       - reforma_network
+      - proxy-network
 
 volumes:
   postgres_data:
@@ -56,4 +62,6 @@ volumes:
 networks:
   reforma_network:
     driver: bridge
+  proxy-network:
+    external: true
 

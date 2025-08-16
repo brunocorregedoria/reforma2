@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 
 const authenticateToken = async (req, res, next) => {
+  console.log('--- AUTHENTICATE TOKEN MIDDLEWARE CALLED ---');
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -10,6 +11,9 @@ const authenticateToken = async (req, res, next) => {
   }
 
   try {
+    console.log('--- JWT DEBUG ---');
+    console.log('Received Token:', token);
+    console.log('Using JWT_SECRET:', process.env.JWT_SECRET);
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'reforma_jwt_secret_key_2025');
     const user = await User.findByPk(decoded.userId);
     
@@ -20,6 +24,8 @@ const authenticateToken = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
+    console.error('--- JWT VERIFY ERROR ---');
+    console.error(error);
     return res.status(403).json({ error: 'Token inválido' });
   }
 };

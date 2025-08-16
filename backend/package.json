@@ -11,7 +11,12 @@
     "migrate": "node src/migrations/migrate.js",
     "seed": "node src/seeders/seed.js"
   },
-  "keywords": ["reforma", "residencial", "gestao", "construcao"],
+  "keywords": [
+    "reforma",
+    "residencial",
+    "gestao",
+    "construcao"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -27,6 +32,7 @@
     "node-cron": "^4.2.1",
     "pdf-lib": "^1.17.1",
     "pg": "^8.16.3",
+    "prop-types": "^15.8.1",
     "sequelize": "^6.37.7",
     "uuid": "^11.1.0"
   },

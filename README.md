@@ -13,30 +13,40 @@ O Sistema de Gestão de Reforma Residencial é uma aplicação web completa dese
 - **Sistema de Logs**: Auditoria completa de todas as alterações
 - **Checklists Personalizáveis**: Templates para diferentes tipos de serviço
 - **Relatórios**: Exportação de dados e geração de PDFs
+- **Arquitetura Componentizada**: Componentes React reutilizáveis e testáveis
+- **Testes Abrangentes**: Cobertura de testes unitários e de integração
+- **Performance Otimizada**: Lazy loading, virtualização e memoização
+- **Monitoramento**: Ferramentas de desenvolvimento para análise de performance
 
 ## Stack Tecnológica
 
 ### Frontend
-- **React 19** - Framework JavaScript
-- **Vite** - Build tool e dev server
-- **Tailwind CSS** - Framework de estilos
-- **shadcn/ui** - Componentes de interface
+- **React 19** - Framework JavaScript com hooks modernos
+- **Vite** - Build tool e dev server otimizado
+- **Tailwind CSS** - Framework de estilos utilitário
+- **shadcn/ui** - Biblioteca de componentes elegantes
 - **PWA** - Progressive Web App
-- **Axios** - Cliente HTTP
+- **Vitest** - Framework de testes modernos
+- **Testing Library** - Testes focados em comportamento do usuário
+- **React Router** - Roteamento client-side
+- **Custom Hooks** - Lógica reutilizável e organizada
 
 ### Backend
 - **Node.js** - Runtime JavaScript
-- **Express.js** - Framework web
-- **Sequelize** - ORM para banco de dados
+- **Express.js** - Framework web minimalista
+- **Sequelize** - ORM para banco de dados com migrations
 - **PostgreSQL** - Banco de dados relacional
-- **JWT** - Autenticação
-- **Multer** - Upload de arquivos
-- **bcryptjs** - Hash de senhas
+- **JWT** - Autenticação baseada em tokens
+- **Multer** - Upload de arquivos com validação
+- **bcryptjs** - Hash de senhas seguro
+- **Service Layer** - Arquitetura em camadas organizada
 
-### DevOps
+### DevOps & Testes
 - **Docker Compose** - Orquestração de containers
-- **Jest** - Framework de testes
+- **Vitest + Jest** - Frameworks de testes abrangentes
 - **Nodemon** - Hot reload em desenvolvimento
+- **ESLint** - Linting e qualidade de código
+- **Performance Monitoring** - Monitoramento em desenvolvimento
 
 ## Estrutura do Projeto
 
@@ -45,25 +55,79 @@ reforma-residencial/
 ├── backend/                 # API Node.js + Express
 │   ├── src/
 │   │   ├── config/         # Configurações do banco
-│   │   ├── controllers/    # Lógica de negócio
-│   │   ├── middleware/     # Middlewares (auth, logs)
+│   │   ├── controllers/    # Controllers da API
+│   │   ├── services/       # Camada de serviços (business logic)
+│   │   ├── middleware/     # Middlewares (auth, logs, validação)
 │   │   ├── models/         # Modelos Sequelize
-│   │   ├── routes/         # Rotas da API
-│   │   ├── tests/          # Testes unitários
+│   │   ├── routes/         # Rotas da API organizadas
+│   │   ├── tests/          # Testes unitários e integração
 │   │   └── server.js       # Servidor principal
 │   ├── uploads/            # Arquivos enviados
 │   └── package.json
 ├── frontend/               # Aplicação React
 │   ├── src/
-│   │   ├── components/     # Componentes React
-│   │   ├── contexts/       # Contextos (Auth)
-│   │   ├── lib/           # Utilitários e API client
-│   │   ├── pages/         # Páginas da aplicação
-│   │   └── App.jsx        # Componente principal
+│   │   ├── components/     # Componentes React organizados
+│   │   │   ├── ui/        # Componentes base (shadcn/ui)
+│   │   │   ├── form/      # Componentes de formulário
+│   │   │   ├── dashboard/ # Componentes do dashboard
+│   │   │   ├── auth/      # Componentes de autenticação
+│   │   │   └── dev/       # Ferramentas de desenvolvimento
+│   │   ├── hooks/         # Custom hooks reutilizáveis
+│   │   ├── contexts/      # Contextos React (Auth)
+│   │   ├── lib/          # Utilitários e API client
+│   │   ├── pages/        # Páginas da aplicação
+│   │   ├── utils/        # Utilitários e helpers
+│   │   └── App.jsx       # Componente principal
 │   └── package.json
 ├── docker-compose.yml      # Orquestração Docker
 └── README.md              # Esta documentação
 ```
+
+## Melhorias Arquiteturais
+
+### Componentização e Reutilização
+
+O sistema foi completamente refatorado seguindo princípios de **componentização**, **TDD** e **organização em leaf nodes**:
+
+#### Componentes Atômicos
+- **StatCard**: Componente reutilizável para exibição de estatísticas
+- **ActivityItem**: Item de atividade recente com status visual
+- **FormField**: Campo de formulário com validação e feedback
+- **SubmitButton**: Botão de submit com estado de loading
+- **AuthLayout**: Layout padrão para páginas de autenticação
+
+#### Custom Hooks
+- **useAuth**: Gestão de autenticação com persistência local
+- **useDashboardData**: Carregamento e cache de dados do dashboard
+- **useForm**: Formulários com validação e debounce
+- **useDebounce**: Debounce para otimização de performance
+- **useLocalStorage**: Persistência reativa no localStorage
+
+#### Otimizações de Performance
+- **React.memo**: Memoização de componentes para evitar re-renders
+- **LazyImage**: Carregamento lazy de imagens com Intersection Observer
+- **VirtualList**: Virtualização para listas grandes
+- **SearchInput**: Busca otimizada com debounce
+- **PerformanceMonitor**: Monitoramento em tempo real durante desenvolvimento
+
+#### Arquitetura de Serviços (Backend)
+- **BaseService**: Classe base com operações CRUD padronizadas
+- **ProjectService**: Lógica de negócio específica para projetos
+- **AuthService**: Centralização da lógica de autenticação
+- **Separação de responsabilidades**: Controllers focados apenas em HTTP, Services com business logic
+
+### Testes e Qualidade
+
+#### Cobertura de Testes
+- **Componentes**: Testes unitários para todos os componentes atômicos
+- **Hooks**: Testes específicos para custom hooks
+- **Formulários**: Testes de validação e interação
+- **Integração**: Testes end-to-end para fluxos críticos
+
+#### Ferramentas de Qualidade
+- **Vitest**: Framework de testes moderno e rápido
+- **Testing Library**: Testes focados no comportamento do usuário
+- **Performance Monitoring**: Monitoramento de FPS, memória e renders
 
 ## Modelagem de Dados
 

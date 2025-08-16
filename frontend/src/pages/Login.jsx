@@ -1,21 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useForm } from '../hooks/useForm';
+import AuthLayout from '../components/auth/AuthLayout';
+import FormField from '../components/form/FormField';
+import SubmitButton from '../components/form/SubmitButton';
 import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Alert, AlertDescription } from '../components/ui/alert';
-import { Loader2 } from 'lucide-react';
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -24,108 +17,102 @@ const Login = () => {
     return <Navigate to="/" replace />;
   }
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    const result = await login(formData);
-    
-    if (result.success) {
-      navigate('/', { replace: true });
-    } else {
-      setError(result.error);
+  const {
+    values,
+    errors,
+    loading,
+    handleChange,
+    handleSubmit,
+    setFormErrors,
+    generalError
+  } = useForm(
+    { email: '', password: '' },
+    async (formData) => {
+      const result = await login(formData);
+      
+      if (result.success) {
+        navigate('/', { replace: true });
+        return result;
+      } else {
+        setFormErrors(result.error);
+        return result;
+      }
     }
-    
-    setLoading(false);
+  );
+
+  const validationRules = {
+    email: {
+      required: true,
+      email: true,
+      requiredMessage: 'Email é obrigatório',
+      emailMessage: 'Email inválido'
+    },
+    password: {
+      required: true,
+      minLength: 6,
+      requiredMessage: 'Senha é obrigatória',
+      minLengthMessage: 'Senha deve ter pelo menos 6 caracteres'
+    }
   };
+
+  const footer = (
+    <p className="text-sm text-gray-600">
+      Não tem uma conta?{' '}
+      <Button 
+        variant="link" 
+        className="p-0 h-auto font-normal"
+        onClick={() => navigate('/register')}
+        data-testid="register-link"
+      >
+        Criar conta
+      </Button>
+    </p>
+  );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Reforma Residencial
-          </h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Sistema de Gestão de Reformas
-          </p>
-        </div>
+    <AuthLayout
+      title="Entrar na sua conta"
+      description="Digite suas credenciais para acessar o sistema"
+      footer={footer}
+    >
+      <form 
+        onSubmit={(e) => handleSubmit(e, validationRules)} 
+        className="space-y-4"
+        data-testid="login-form"
+      >
+        {generalError && (
+          <Alert variant="destructive" data-testid="general-error">
+            <AlertDescription>{generalError}</AlertDescription>
+          </Alert>
+        )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Entrar na sua conta</CardTitle>
-            <CardDescription>
-              Digite suas credenciais para acessar o sistema
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
+        <FormField
+          name="email"
+          label="Email"
+          type="email"
+          value={values.email}
+          onChange={handleChange}
+          error={errors.email}
+          placeholder="seu@email.com"
+          required
+        />
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="seu@email.com"
-                />
-              </div>
+        <FormField
+          name="password"
+          label="Senha"
+          type="password"
+          value={values.password}
+          onChange={handleChange}
+          error={errors.password}
+          placeholder="••••••••"
+          required
+        />
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                />
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={loading}
-              >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Entrar
-              </Button>
-            </form>
-
-            <div className="mt-4 text-center">
-              <p className="text-sm text-gray-600">
-                Não tem uma conta?{' '}
-                <Button 
-                  variant="link" 
-                  className="p-0 h-auto font-normal"
-                  onClick={() => navigate('/register')}
-                >
-                  Criar conta
-                </Button>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+        <SubmitButton loading={loading}>
+          Entrar
+        </SubmitButton>
+      </form>
+    </AuthLayout>
   );
 };
 
